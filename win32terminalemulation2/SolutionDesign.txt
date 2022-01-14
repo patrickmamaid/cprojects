@@ -1,0 +1,61 @@
+PatrickMamaid
+
+A00609663
+
+###############PROGRAMDESIGN#####################
+#################################################
+
+problems..:
+
+serial i/o is very slow..
+
+compiler warnings about hwnd complaining about: LPCSTR , LPWSTR? not sure how to fix...
+	i used TEXT() & other ways to get around but no luck..
+
+ESC key not implemented..
+
+
+#################################################
+
+menu structure:
+
+File
+	-Connect			#attempts to connect using default setting;
+	-Exit to Command Prompt		#quits program and runs cmd.exe
+	-Exit				#quits program 
+
+
+Settings
+	-Port				#selects what com# to use
+		-Com1			
+		-Com2
+		...
+		...
+	-Speed				#selects what speed #### to use
+		-9600
+		-32000
+		-110000
+
+Help
+	-About				#name of author & stdnumber.
+
+
+
+##################################################
+
+
+program structure:
+
+
+-Connect menu item spawns a looping thread that polls the serial io if all errors are cleared
+-Exit to command prompt spawns a thread that runs system("cmd.exe")
+
+
+1. when program enters entry point [WINAPI WinMain...] createfile, setupcomm, getcommprop, dcb are initialized
+2. when user selects command mode using new/default dcb&comm settings it spawns a thread and outputs new characters to DC
+3. ESC key should abort thread and comm (not implemented yet)
+4. 2 ways to exit program.
+
+
+
+###################################################

@@ -1,0 +1,33 @@
+#include "header.h"
+TERMINALMENU MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "&Open File",                  ID_FILE_OPENFILE
+        POPUP "&Connect"
+        BEGIN
+            MENUITEM "COM &1",                      ID_CONNECT_COM1
+            MENUITEM "COM &2",                      ID_CONNECT_COM2
+            MENUITEM "COM &3",                      ID_CONNECT_COM3
+            MENUITEM "COM &4",                      ID_CONNECT_COM4
+            MENUITEM "COM &5",                      ID_CONNECT_COM5
+            MENUITEM "COM &6",                      ID_CONNECT_COM6
+            MENUITEM "COM &7",                      ID_CONNECT_COM7
+            MENUITEM "COM &8",                      ID_CONNECT_COM8
+            MENUITEM "COM &9",                      ID_CONNECT_COM9
+        END
+        MENUITEM "&Disconnect",                 ID_FILE_DISCONNECT, INACTIVE
+        POPUP "Sen&d"
+        BEGIN
+            MENUITEM "&Send File",                  ID_SEND_SENDFILE
+            MENUITEM "&Emergency Stop",             ID_SEND_EMERGENCYSTOP
+        END
+        MENUITEM "&Save",                       ID_FILE_SAVE
+        MENUITEM "E&xit",                       ID_FILE_EXIT
+    END
+    POPUP "M&ode"
+    BEGIN
+        MENUITEM "&Normal",                     ID_MODE_NORMAL
+        MENUITEM "&Urgent",                     ID_MODE_URGENT
+    END
+END
