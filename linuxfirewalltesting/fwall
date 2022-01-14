@@ -1,0 +1,112 @@
+#*************************************************************************************
+#____________________________________________________________________________________
+# FIREWALL SHELL SCRIPT
+#
+# Authors: Kevin Le
+# 	   Patrick Mamaid
+#____________________________________________________________________________________
+#*************************************************************************************
+
+#*************************************************************************************
+# User-configurable section
+#
+#____________________________________________________________________________________
+#*************************************************************************************
+extDev="eth3"				# Network device to external network
+intDev="eth2"				# Network device to internal network
+extAddr="192.168.0.0/24"		# Address space of external network
+intAddr="192.168.1.0/24"		# Address space of internal network
+intIp="192.168.1.2"			# IP address of internal machine
+tcpServ="20,22,80"			# TCP services that will be allowed (seperate with commas)
+udpServ="53,22,80"			# UDP services that will be allowed (seperate with commas)
+icmpServ="3"				# ICMP services that will be allowed (seperate with spaces)
+
+
+#**************************************************************************************
+# Implementation section
+#
+# Note: *DO NOT TOUCH UNLESS YOU KNOW WHAT YOU'RE DOING*
+#_____________________________________________________________________________________
+#**************************************************************************************
+
+setup_connection() {
+	# forward incoming packets to internal machine
+	iptables -t nat -A PREROUTING -i $intDev -j ACCEPT
+	iptables -t nat -A PREROUTING -i $extDev -j DNAT --to $intIp
+	iptables -t nat -A POSTROUTING -o $extDev -s $intIp -j MASQUERADE
+	echo 1 > /proc/sys/net/ipv4/ip_forward
+}
+
+start_firewall() {
+	# set default policies to DROP
+	iptables -P INPUT DROP
+	iptables -P OUTPUT DROP
+	iptables -P FORWARD DROP
+
+	# drop outside packets with IPs matching the internal network
+	iptables -A FORWARD -p ALL -i $extDev -s $intAddr -j DROP
+
+	# drop telnet and FTP packets
+	iptables -A FORWARD -p TCP -m multiport --ports 20,21,23 -j DROP
+	iptables -A FORWARD -p UDP -m multiport --ports 20,21,23 -j DROP
+
+	# drop TCP packets with the SYN and FIN bit set	
+	iptables -A FORWARD -p TCP --tcp-flags SYN,FIN SYN,FIN -j DROP
+
+	# allow DNS and DHCP
+	iptables -A INPUT -p UDP -m multiport --ports 53,67,68 -j ACCEPT
+	iptables -A OUTPUT -p UDP -m multiport --ports 53,67,68 -j ACCEPT
+	iptables -A FORWARD -p UDP -m multiport --ports 53,67,68 -j ACCEPT
+
+	# allow TCP services that belong to an existing connection
+	iptables -A FORWARD -p TCP -m state --state NEW,ESTABLISHED -m multiport --ports $tcpServ -j ACCEPT
+
+	# allow UDP services
+	iptables -A FORWARD -p UDP -m multiport --ports $udpServ -j ACCEPT
+
+	# allow ICMP services
+	for i in $icmpServ 
+	do		
+		iptables -A FORWARD -p ICMP --icmp-type $i -j ACCEPT		
+	done
+}
+
+stop_firewall() {
+	iptables -F
+	iptables -t nat -F
+	iptables -t filter -F
+	iptables -P INPUT ACCEPT
+	iptables -P OUTPUT ACCEPT
+	iptables -P FORWARD ACCEPT
+}
+
+case "$1" in
+	start)
+		echo -n "Starting firewall..."
+		setup_connection
+		start_firewall
+		echo "done"
+	;;
+
+	stop)
+		echo -n "Stopping firewall..."
+		stop_firewall
+		echo "done"
+	;;
+	restart)
+		echo -n "Restarting firewall..."
+		stop_firewall
+		setup_connection
+		start_firewall
+		echo "done"
+	;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+	;;
+esac
+
+
+
+
+
