@@ -1,0 +1,64 @@
+#include "mesg.h"
+
+int main(void){
+	
+	int msqid;
+	//PFI pfi;
+	
+		//server must create the queue
+	msqid = msgget(MQ_KEY1,0);
+
+	//pfi = malloc(sizeof(FILE_INFO));
+	//pfi->fd = msqid;
+
+		// same queue for both directions
+	client(msqid, msqid);
+
+	exit(0);
+}
+
+void client(int readfd, int writefd){
+
+	size_t len;
+	ssize_t n;
+	char *ptr;
+	
+	mymesg mesg;
+
+
+	//start buffer with msqid and a blank
+	snprintf(mesg.mesg_data, MAXMESSAGEDATA, "%ld ", (long)getpid());
+	len = strlen(mesg.mesg_data);
+	ptr = mesg.mesg_data + len;
+
+	// read pathname
+	fgets(ptr,MAXMESSAGEDATA - len, stdin);
+	//read(0,ptr, MAXMESSAGEDATA - len);	
+	
+	len = strlen(mesg.mesg_data);
+	if (mesg.mesg_data[len-1]=='\n')
+		len--;		// delete newline from fgets()
+	mesg.mesg_len = len;
+	mesg.mesg_type = 1;
+
+	// write pid and pathname to IPC channel
+	mesg_send(writefd, &mesg);
+
+	//read from IPC, write to stand output
+	mesg.mesg_type = getpid();
+	while ((n = mesg_recv(readfd, &mesg)) > 0)
+		write(STDOUT_FILENO, mesg.mesg_data,n);
+}
+
+ssize_t mesg_recv(int id, mymesg *mptr){
+
+	ssize_t n;
+
+	n = msgrcv(id, &(mptr->mesg_type), MAXMESSAGEDATA, mptr->mesg_type,0);
+	mptr->mesg_len = n;		// return #bytes of data
+	return (n);		// -1 on error, 0 at EOF, else > 0
+}
+
+ssize_t mesg_send(int id, mymesg *mptr){
+        return(msgsnd(id, &(mptr->mesg_type),mptr->mesg_len,0));
+}

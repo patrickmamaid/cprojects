@@ -1,0 +1,27 @@
+so its under ~/.wine/
+
+the beat
+vlc http://www.thebeat.com/asxfiles/insinc.asx
+
+
+http://www.java.com/en/download/help/5000010500.xml#enable
+
+
+
+
+goto /etc/sound/ and edit options with gedit and apply this option:
+
+options snd-hda-intel model=3stack
+
+
+
+if ndiswrapper doesnt work try
+sudo modprobe -i ndiswrapper 
+
+i totally got luck with that command
+
+
+
+
+
+/etc/modprobe.d
