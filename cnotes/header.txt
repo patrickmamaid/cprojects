@@ -1,0 +1,36 @@
+Here is a sample function header. This sort of a header would precede all functions. In addition in your main function file you should have a main header that would give some idea of what this program does and all the functions that this file contains.
+
+
+
+
+
+
+/****************************************************************************
+
+Function:  OnSuspendAll
+
+DATE:	November 14, 2000
+
+REVISIONS (Date and Description):
+
+DESIGNER: A. Abdulla
+
+PROGRAMMER: A. Abdulla
+
+Inteface: void OnSuspendAll(HANDLE threadHandle[], BOOL bSuspend[],
+					   MSGQUE pMsgQue[], MSGQUE pTempQue[],
+						int rwFlag[], HMENU &hMenu)
+		threadHandle:an array of threads to suspend
+	    bSuspend: updates the suspend status
+		pMsgQue: the message queue to modify
+		pTempQue: the que to transfer the suspended stuff to
+		rwFlag: indicates which threads are in read/write mode
+		hMenu: need the menu handle
+
+
+Description:  This function will suspend all the threads and will
+		      take its request off the queue.
+
+Returns:  Nothing
+
+****************************************************************************/
